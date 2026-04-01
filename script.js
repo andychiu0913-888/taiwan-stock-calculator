@@ -87,6 +87,18 @@ function getTickSize(price) {
     return 5;
 }
 
+// 取得下一檔價格 (考慮向上跨界)
+function getNextTick(price) {
+    const tick = getTickSize(price);
+    return Math.round((price + tick) * 10000) / 10000;
+}
+
+// 取得前一檔價格 (考慮向下跨界)
+function getPrevTick(price) {
+    const tick = getTickSize(price - 0.0001);
+    return Math.round((price - tick) * 10000) / 10000;
+}
+
 // 根據跳動單位校正價格到有效的交易價
 function roundToTick(price) {
     const tickSize = getTickSize(price);
@@ -162,9 +174,9 @@ function calculate() {
     const tick = getTickSize(entryPrice);
     let tickProfit = 0;
     if (tradeType === 'LONG') {
-        tickProfit = calcProfit(entryPrice, roundToTick(entryPrice + tick), shares, discount);
+        tickProfit = calcProfit(entryPrice, getNextTick(entryPrice), shares, discount);
     } else {
-        tickProfit = calcProfit(roundToTick(entryPrice - tick), entryPrice, shares, discount);
+        tickProfit = calcProfit(getPrevTick(entryPrice), entryPrice, shares, discount);
     }
     minTickProfitEl.textContent = formatCurrency(tickProfit);
     minTickProfitEl.className = 'value ' + (tickProfit >= 0 ? 'profit' : 'loss');

@@ -225,6 +225,16 @@
             return 5;
         }
 
+        function getNextTick(price) {
+            const tick = getTickSize(price);
+            return Math.round((price + tick) * 10000) / 10000;
+        }
+
+        function getPrevTick(price) {
+            const tick = getTickSize(price - 0.0001);
+            return Math.round((price - tick) * 10000) / 10000;
+        }
+
         function roundToTick(price) {
             const tick = getTickSize(price);
             return Math.round(price / tick) * tick;
@@ -284,10 +294,14 @@
             buyingCostEl.textContent = formatCurrency(balance);
             breakEvenEl.textContent = 'NT$ ' + formatPrice(bePrice);
             
-            const tick = getTickSize(ep);
-            const tProf = tradeType === 'LONG' ? calcProfit(ep, roundToTick(ep + tick), shares, disc) : calcProfit(roundToTick(ep - tick), ep, shares, disc);
-            minTickProfitEl.textContent = formatCurrency(tProf);
-            minTickProfitEl.className = 'value ' + (tProf >= 0 ? 'profit' : 'loss');
+            let tickProfit = 0;
+            if (tradeType === 'LONG') {
+                tickProfit = calcProfit(ep, getNextTick(ep), shares, disc);
+            } else {
+                tickProfit = calcProfit(getPrevTick(ep), ep, shares, disc);
+            }
+            minTickProfitEl.textContent = formatCurrency(tickProfit);
+            minTickProfitEl.className = 'value ' + (tickProfit >= 0 ? 'profit' : 'loss');
 
             renderTable(ep, shares, disc);
         }
