@@ -136,9 +136,9 @@ function calculate() {
         const sellSubtotal = entryPrice * shares;
         const sellFee = Math.floor(sellSubtotal * BASE_FEE_RATE * discount);
         const tax = Math.floor(sellSubtotal * TAX_RATE);
-        // 顯示「賣出成本(含手續費)」= 賣出金額 + 手續費 + 交易稅
-        balanceValue = sellSubtotal + sellFee + tax;
-        // 損益兩平計算仍使用「淨收入」
+        // 賣出成本 = 賣出金額 + 手續費（與買入成本對稱）
+        balanceValue = sellSubtotal + sellFee;
+        // 損益兩平計算使用淨收入（含交易稅扣除）
         const netSellProceeds = sellSubtotal - sellFee - tax;
         const beRaw = netSellProceeds / (shares * (1 + BASE_FEE_RATE * discount));
         breakEvenPrice = roundToTick(beRaw);
