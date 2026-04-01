@@ -125,9 +125,10 @@ function calculate() {
     if (tradeType === 'LONG') {
         const buySubtotal = entryPrice * shares;
         const buyFee = Math.floor(buySubtotal * BASE_FEE_RATE * discount);
-        balanceValue = buySubtotal + buyFee;
+        const tax = Math.floor(buySubtotal * TAX_RATE);
+        balanceValue = buySubtotal + buyFee + tax;
         
-        const beRaw = balanceValue / (shares * (1 - BASE_FEE_RATE * discount - TAX_RATE));
+        const beRaw = (buySubtotal + buyFee) / (shares * (1 - BASE_FEE_RATE * discount - TAX_RATE));
         breakEvenPrice = roundToTick(beRaw);
         if (calcProfit(entryPrice, breakEvenPrice, shares, discount) < 0) {
             breakEvenPrice = roundToTick(breakEvenPrice + getTickSize(breakEvenPrice));
@@ -136,8 +137,8 @@ function calculate() {
         const sellSubtotal = entryPrice * shares;
         const sellFee = Math.floor(sellSubtotal * BASE_FEE_RATE * discount);
         const tax = Math.floor(sellSubtotal * TAX_RATE);
-        // 賣出成本 = 賣出金額 + 手續費（與買入成本對稱）
-        balanceValue = sellSubtotal + sellFee;
+        // 賣出成本 = 賣出金額 + 手續費 + 交易稅（與買入成本對稱）
+        balanceValue = sellSubtotal + sellFee + tax;
         // 損益兩平計算使用淨收入（含交易稅扣除）
         const netSellProceeds = sellSubtotal - sellFee - tax;
         const beRaw = netSellProceeds / (shares * (1 + BASE_FEE_RATE * discount));

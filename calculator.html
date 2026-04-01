@@ -258,8 +258,10 @@
             let balance = 0;
             let bePrice = 0;
             if (tradeType === 'LONG') {
-                balance = (ep * shares) + Math.floor(ep * shares * BASE_FEE_RATE * disc);
-                bePrice = roundToTick(balance / (shares * (1 - BASE_FEE_RATE * disc - TAX_RATE)));
+                const tax = Math.floor(ep * shares * TAX_RATE);
+                balance = (ep * shares) + Math.floor(ep * shares * BASE_FEE_RATE * disc) + tax;
+                const buyCost = (ep * shares) + Math.floor(ep * shares * BASE_FEE_RATE * disc);
+                bePrice = roundToTick(buyCost / (shares * (1 - BASE_FEE_RATE * disc - TAX_RATE)));
                 if (calcProfit(ep, bePrice, shares, disc) < 0) bePrice = roundToTick(bePrice + getTickSize(bePrice));
             } else {
                 balance = (ep * shares) + Math.floor(ep * shares * BASE_FEE_RATE * disc);
