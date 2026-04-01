@@ -1,0 +1,275 @@
+/* CSS Global Setup */
+:root {
+    --bg-dark: #0f1113;
+    --card-bg: rgba(26, 28, 30, 0.7);
+    --gold: #fcc419;
+    --gold-bright: #ffd700;
+    --profit-green: #e74c3c; /* 台灣股市：漲/賺 為紅 */
+    --loss-red: #2ecc71;     /* 台灣股市：跌/賠 為綠 */
+    --text-white: #ffffff;
+    --text-gray: #aab0b4;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --highlight: #3498db;
+    --gradient-gold: linear-gradient(135deg, #fcc419 0%, #ff922b 100%);
+    --gradient-dark: linear-gradient(180deg, #1e2022 0%, #0f1113 100%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: radial-gradient(circle at top right, rgba(252, 196, 25, 0.05), transparent 40%),
+                      radial-gradient(circle at bottom left, rgba(52, 152, 219, 0.05), transparent 40%);
+}
+
+.container {
+    width: 95%;
+    max-width: 1000px;
+    padding: 2rem 1rem;
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    margin-bottom: 0.5rem;
+}
+
+.highlight {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    color: var(--text-gray);
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    font-weight: 400;
+}
+
+/* Trade Mode Toggle (Long/Short) */
+.trade-mode-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.trade-btn {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    padding: 0.8rem 2rem;
+    border-radius: 2rem;
+    color: var(--text-gray);
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.trade-btn.active {
+    background: var(--gradient-gold);
+    color: var(--bg-dark);
+    border: none;
+    box-shadow: 0 5px 15px rgba(252, 196, 25, 0.3);
+}
+
+.trade-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-white);
+}
+
+/* Common Card Styling */
+.card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Input Grid */
+.input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+label {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    font-weight: 500;
+}
+
+input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.8rem;
+    padding: 1rem;
+    color: var(--text-white);
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: rgba(252, 196, 25, 0.05);
+    box-shadow: 0 0 15px rgba(252, 196, 25, 0.1);
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding-right: 3rem;
+}
+
+.unit {
+    position: absolute;
+    right: 1rem;
+    color: var(--gold);
+    font-weight: 700;
+}
+
+/* Summary Section */
+.summary-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 1.2rem;
+    border: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.summary-card:hover { transform: translateY(-5px); }
+
+.summary-card .label { font-size: 0.8rem; color: var(--text-gray); }
+.summary-card .value { font-size: 1.8rem; font-weight: 700; font-family: 'Outfit'; }
+
+.gold-border { border-left: 4px solid var(--gold); }
+.highlight-border { border-left: 4px solid var(--highlight); }
+.profit-border { border-left: 4px solid var(--profit-green); }
+
+/* Table Section */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.toggle-group {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.3rem;
+    border-radius: 0.8rem;
+}
+
+.toggle-group button {
+    background: transparent;
+    border: none;
+    color: var(--text-gray);
+    padding: 0.5rem 1.2rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.toggle-group button.active {
+    background: var(--gold);
+    color: var(--bg-dark);
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th {
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+td {
+    padding: 1rem;
+    font-size: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    font-family: 'Outfit';
+}
+
+td.profit { color: var(--profit-green); font-weight: 700; }
+td.loss { color: var(--loss-red); font-weight: 700; }
+
+tr:last-child td { border: none; }
+tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding: 2rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.footer-content p { color: var(--text-gray); font-size: 0.8rem; margin-bottom: 0.5rem; }
+.disclaimer { color: var(--text-gray); font-size: 0.75rem; opacity: 0.6; }
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    .summary-section { grid-template-columns: 1fr; }
+    h1 { font-size: 1.8rem; }
+}

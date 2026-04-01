@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台股當沖損益計算機 - 旗艦版</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Global Setup */
+        :root {
+            --bg-dark: #0f1113;
+            --card-bg: rgba(26, 28, 30, 0.7);
+            --gold: #fcc419;
+            --gold-bright: #ffd700;
+            --profit-green: #e74c3c; /* 台灣股市：漲/賺 為紅 */
+            --loss-red: #2ecc71;     /* 台灣股市：跌/賠 為綠 */
+            --text-white: #ffffff;
+            --text-gray: #aab0b4;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --highlight: #3498db;
+            --gradient-gold: linear-gradient(135deg, #fcc419 0%, #ff922b 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(circle at top right, rgba(252, 196, 25, 0.1), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(52, 152, 219, 0.1), transparent 40%);
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1000px;
+            padding: 2rem 1rem;
+        }
+
+        header { text-align: center; margin-bottom: 2.5rem; }
+        h1 { font-size: 2.5rem; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 0.5rem; }
+        .highlight { background: var(--gradient-gold); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: var(--text-gray); font-size: 0.85rem; letter-spacing: 3px; }
+
+        .trade-mode-toggle { display: flex; justify-content: center; gap: 1rem; margin: 1.5rem 0; }
+        .trade-btn {
+            background: transparent; border: 1px solid var(--glass-border); padding: 0.8rem 2rem;
+            border-radius: 2rem; color: var(--text-gray); cursor: pointer; font-weight: 700; transition: all 0.3s ease;
+        }
+        .trade-btn.active { background: var(--gradient-gold); color: var(--bg-dark); border: none; box-shadow: 0 5px 15px rgba(252, 196, 25, 0.3); }
+
+        .card {
+            background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+            border-radius: 1.5rem; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+        .input-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        label { font-size: 0.9rem; color: var(--text-gray); }
+        input {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+            border-radius: 0.8rem; padding: 1rem; color: var(--text-white); font-size: 1.2rem; font-weight: 600;
+        }
+
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .unit { position: absolute; right: 1rem; color: var(--gold); font-weight: 700; }
+
+        .summary-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.2rem; margin: 2rem 0; }
+        .summary-card { background: var(--card-bg); padding: 1.5rem; border-radius: 1.2rem; border: 1px solid var(--glass-border); }
+        .summary-card .label { font-size: 0.8rem; color: var(--text-gray); }
+        .summary-card .value { font-size: 1.8rem; font-weight: 700; }
+        .gold-border { border-left: 4px solid var(--gold); }
+        .highlight-border { border-left: 4px solid var(--highlight); }
+        .profit-border { border-left: 4px solid var(--profit-green); }
+
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .toggle-group { display: flex; background: rgba(255, 255, 255, 0.05); padding: 0.3rem; border-radius: 0.8rem; }
+        .toggle-group button { background: transparent; border: none; color: var(--text-gray); padding: 0.5rem 1.2rem; cursor: pointer; border-radius: 0.6rem; }
+        .toggle-group button.active { background: var(--gold); color: var(--bg-dark); }
+
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        th { font-size: 0.8rem; color: var(--text-gray); }
+        .profit { color: var(--profit-green) !important; font-weight: 700; }
+        .loss { color: var(--loss-red) !important; font-weight: 700; }
+
+        footer { text-align: center; margin-top: 3rem; color: var(--text-gray); font-size: 0.8rem; opacity: 0.7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>台股當沖<span class="highlight">損益計算機</span></h1>
+            <p class="subtitle">PREMIUM SYSTEM • REAL-TIME CALCULATION</p>
+            <div class="trade-mode-toggle">
+                <button class="trade-btn active" id="type-long">做多 (先買後賣)</button>
+                <button class="trade-btn" id="type-short">做空 (先賣後買)</button>
+            </div>
+        </header>
+
+        <main>
+            <section class="config-section card">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label id="price-label">買入成交價 (TWD)</label>
+                        <input type="number" id="price" value="100" step="0.05">
+                    </div>
+                    <div class="input-group">
+                        <label>數量 (張)</label>
+                        <input type="number" id="quantity" value="1" step="1">
+                    </div>
+                    <div class="input-group">
+                        <label>券商折數 (2.8 折輸入 2.8)</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="discount" value="2.8" step="0.1">
+                            <span class="unit">折</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="summary-section">
+                <div class="summary-card gold-border">
+                    <span class="label" id="summary-balance-label">買入成本 (含手續費)</span>
+                    <div class="value" id="buying-cost">$ 0</div>
+                </div>
+                <div class="summary-card highlight-border">
+                    <span class="label">損益兩平價</span>
+                    <div class="value" id="break-even">$ 0</div>
+                </div>
+                <div class="summary-card profit-border">
+                    <span class="label">最小跳動單位收益</span>
+                    <div class="value" id="min-tick-profit">$ 0</div>
+                </div>
+            </section>
+
+            <section class="result-section card">
+                <div class="card-header">
+                    <h2>獲利點平倉試算表</h2>
+                    <div class="toggle-group">
+                        <button class="active" id="mode-up">漲幅試算</button>
+                        <button id="mode-down">跌幅試算</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>目標漲跌 (%)</th>
+                                <th>平倉成交價</th>
+                                <th>成交金額</th>
+                                <th>淨損益</th>
+                                <th>報酬率 (ROI)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2026 Antigravity Trading Tools • 手續費 0.1425% • 當沖稅 0.15%</p>
+        </footer>
+    </div>
+
+    <script>
+        const BASE_FEE_RATE = 0.001425;
+        const TAX_RATE = 0.0015;
+        const PERCENTAGES_UP = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
+        const PERCENTAGES_DOWN = [-0.5, -1, -1.5, -2, -2.5, -3, -3.5, -4, -4.5, -5, -5.5, -6, -6.5, -7, -7.5, -8, -8.5, -9, -9.5, -10];
+        
+        let currentMode = 'UP';
+        let tradeType = 'LONG';
+
+        const priceInput = document.getElementById('price');
+        const quantityInput = document.getElementById('quantity');
+        const discountInput = document.getElementById('discount');
+        const tableBody = document.getElementById('table-body');
+        const buyingCostEl = document.getElementById('buying-cost');
+        const breakEvenEl = document.getElementById('break-even');
+        const minTickProfitEl = document.getElementById('min-tick-profit');
+        const modeUpBtn = document.getElementById('mode-up');
+        const modeDownBtn = document.getElementById('mode-down');
+        const typeLongBtn = document.getElementById('type-long');
+        const typeShortBtn = document.getElementById('type-short');
+        const priceLabel = document.getElementById('price-label');
+        const balanceLabel = document.getElementById('summary-balance-label');
+
+        function init() {
+            [priceInput, quantityInput, discountInput].forEach(inp => inp.addEventListener('input', calculate));
+            modeUpBtn.addEventListener('click', () => { currentMode = 'UP'; updateUI(); });
+            modeDownBtn.addEventListener('click', () => { currentMode = 'DOWN'; updateUI(); });
+            typeLongBtn.addEventListener('click', () => { tradeType = 'LONG'; updateUI(); });
+            typeShortBtn.addEventListener('click', () => { tradeType = 'SHORT'; updateUI(); });
+            calculate();
+        }
+
+        function updateUI() {
+            modeUpBtn.classList.toggle('active', currentMode === 'UP');
+            modeDownBtn.classList.toggle('active', currentMode === 'DOWN');
+            typeLongBtn.classList.toggle('active', tradeType === 'LONG');
+            typeShortBtn.classList.toggle('active', tradeType === 'SHORT');
+            priceLabel.textContent = tradeType === 'LONG' ? '買入成交價 (TWD)' : '賣出成交價 (TWD)';
+            balanceLabel.textContent = tradeType === 'LONG' ? '買入成本 (含手續費)' : '賣出收入 (扣除稅費)';
+            calculate();
+        }
+
+        function getTickSize(price) {
+            if (price < 10) return 0.01;
+            if (price < 50) return 0.05;
+            if (price < 100) return 0.1;
+            if (price < 500) return 0.5;
+            if (price < 1000) return 1;
+            return 5;
+        }
+
+        function roundToTick(price) {
+            const tick = getTickSize(price);
+            return Math.round(price / tick) * tick;
+        }
+
+        function formatPrice(price) {
+            const rounded = Math.round(price * 100) / 100;
+            const parts = rounded.toFixed(2).split('.');
+            const integerPart = parseInt(parts[0]).toLocaleString('zh-TW');
+            const decimalPart = parts[1].replace(/0+$/, '');
+            return decimalPart.length > 0 ? `${integerPart}.${decimalPart}` : integerPart;
+        }
+
+        function formatCurrency(val) {
+            return 'NT$ ' + Math.floor(val).toLocaleString('zh-TW');
+        }
+
+        function calcProfit(buyPrice, sellPrice, shares, discount) {
+            const bCost = (buyPrice * shares) + Math.floor(buyPrice * shares * BASE_FEE_RATE * discount);
+            const sRev = (sellPrice * shares) - Math.floor(sellPrice * shares * BASE_FEE_RATE * discount) - Math.floor(sellPrice * shares * TAX_RATE);
+            return sRev - bCost;
+        }
+
+        function calculate() {
+            const ep = parseFloat(priceInput.value) || 0;
+            const qty = parseFloat(quantityInput.value) || 0;
+            const disc = (parseFloat(discountInput.value) || 2.8) / 10;
+            const shares = qty * 1000;
+            if (ep <= 0 || qty <= 0) return;
+
+            let balance = 0;
+            let bePrice = 0;
+            if (tradeType === 'LONG') {
+                balance = (ep * shares) + Math.floor(ep * shares * BASE_FEE_RATE * disc);
+                bePrice = roundToTick(balance / (shares * (1 - BASE_FEE_RATE * disc - TAX_RATE)));
+                if (calcProfit(ep, bePrice, shares, disc) < 0) bePrice = roundToTick(bePrice + getTickSize(bePrice));
+            } else {
+                balance = (ep * shares) - Math.floor(ep * shares * BASE_FEE_RATE * disc) - Math.floor(ep * shares * TAX_RATE);
+                bePrice = roundToTick(balance / (shares * (1 + BASE_FEE_RATE * disc)));
+                if (calcProfit(bePrice, ep, shares, disc) < 0) bePrice = roundToTick(bePrice - getTickSize(bePrice));
+            }
+
+            buyingCostEl.textContent = formatCurrency(balance);
+            breakEvenEl.textContent = 'NT$ ' + formatPrice(bePrice);
+            
+            const tick = getTickSize(ep);
+            const tProf = tradeType === 'LONG' ? calcProfit(ep, roundToTick(ep + tick), shares, disc) : calcProfit(roundToTick(ep - tick), ep, shares, disc);
+            minTickProfitEl.textContent = formatCurrency(tProf);
+            minTickProfitEl.className = 'value ' + (tProf >= 0 ? 'profit' : 'loss');
+
+            renderTable(ep, shares, disc);
+        }
+
+        function renderTable(ep, shares, disc) {
+            tableBody.innerHTML = '';
+            const ratios = currentMode === 'UP' ? PERCENTAGES_UP : PERCENTAGES_DOWN;
+            ratios.forEach(r => {
+                let bp, sp;
+                if (tradeType === 'LONG') { bp = ep; sp = roundToTick(bp * (1 + r / 100)); }
+                else { sp = ep; bp = roundToTick(sp * (1 - r / 100)); }
+
+                const prof = calcProfit(bp, sp, shares, disc);
+                const rev = (tradeType === 'LONG' ? sp : bp) * shares;
+                const roi = (prof / ((tradeType === 'LONG' ? bp : sp) * shares)) * 100;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${r > 0 ? '+' : ''}${r}%</td><td>${formatPrice(tradeType === 'LONG' ? sp : bp)}</td><td>${formatCurrency(rev)}</td><td class="${prof >= 0 ? 'profit' : 'loss'}">${formatCurrency(prof)}</td><td class="${prof >= 0 ? 'profit' : 'loss'}">${roi.toFixed(2)}%</td>`;
+                tableBody.appendChild(tr);
+            });
+        }
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台股當沖損益計算機 - 專業交易員版</title>
+    <meta name="description" content="專業的台股當沖損益計算工具，支持券商手續費折數設定與多平倉位價格試算。">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <div class="container">
+        <header>
+            <h1>台股當沖<span class="highlight">損益計算機</span></h1>
+            <p class="subtitle">TAIWAN STOCK DAY-TRADING PROFIT CALCULATOR</p>
+            <div class="trade-mode-toggle">
+                <button class="trade-btn active" id="type-long">做多 (先買後賣)</button>
+                <button class="trade-btn" id="type-short">做空 (先賣後買)</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- 輸入設定區域 -->
+            <section class="config-section card">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="price" id="price-label">買入成交價 (TWD)</label>
+                        <input type="number" id="price" value="100" step="0.05" placeholder="輸入價格...">
+                    </div>
+                    <div class="input-group">
+                        <label for="quantity">數量 (張)</label>
+                        <input type="number" id="quantity" value="1" step="1" placeholder="張數...">
+                    </div>
+                    <div class="input-group">
+                        <label for="discount">券商折數 (例如 2.8 折輸入 2.8)</label>
+                        <div class="input-wrapper">
+                            <input type="number" id="discount" value="2.8" step="0.1" placeholder="2.8">
+                            <span class="unit">折</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 核心結果摘要 -->
+            <section class="summary-section">
+                <div class="summary-card gold-border">
+                    <span class="label" id="summary-balance-label">買入成本 (含手續費)</span>
+                    <span class="value" id="buying-cost">$ 0</span>
+                </div>
+                <div class="summary-card highlight-border">
+                    <span class="label">損益兩平價</span>
+                    <span class="value" id="break-even">$ 0</span>
+                </div>
+                <div class="summary-card profit-border">
+                    <span class="label">最小跳動單位收益</span>
+                    <span class="value" id="min-tick-profit">$ 0</span>
+                </div>
+            </section>
+
+            <!-- 比例試算表 -->
+            <section class="result-section card">
+                <div class="card-header">
+                    <h2>獲利點平倉試算表</h2>
+                    <div class="toggle-group">
+                        <button class="active" id="mode-up">漲幅試算</button>
+                        <button id="mode-down">跌幅試算</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="result-table">
+                        <thead>
+                            <tr>
+                                <th>目標漲幅 (%)</th>
+                                <th>平倉成交價</th>
+                                <th>成交金額</th>
+                                <th>淨損益</th>
+                                <th>報酬率 (ROI)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- JS 動態生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2026 Antigravity Trading Tools - 投資理財請審慎評估風險</p>
+                <div class="disclaimer">註：手續費 0.1425%，當沖交易稅 0.15% (已減半)</div>
+            </div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
