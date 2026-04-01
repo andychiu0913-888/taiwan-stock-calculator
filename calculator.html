@@ -212,7 +212,7 @@
             typeLongBtn.classList.toggle('active', tradeType === 'LONG');
             typeShortBtn.classList.toggle('active', tradeType === 'SHORT');
             priceLabel.textContent = tradeType === 'LONG' ? '買入成交價 (TWD)' : '賣出成交價 (TWD)';
-            balanceLabel.textContent = tradeType === 'LONG' ? '買入成本 (含手續費)' : '賣出收入 (扣除稅費)';
+            balanceLabel.textContent = tradeType === 'LONG' ? '買入成本 (含手續費)' : '賣出成本 (含手續費)';
             calculate();
         }
 
@@ -262,8 +262,9 @@
                 bePrice = roundToTick(balance / (shares * (1 - BASE_FEE_RATE * disc - TAX_RATE)));
                 if (calcProfit(ep, bePrice, shares, disc) < 0) bePrice = roundToTick(bePrice + getTickSize(bePrice));
             } else {
-                balance = (ep * shares) - Math.floor(ep * shares * BASE_FEE_RATE * disc) - Math.floor(ep * shares * TAX_RATE);
-                bePrice = roundToTick(balance / (shares * (1 + BASE_FEE_RATE * disc)));
+                balance = (ep * shares) + Math.floor(ep * shares * BASE_FEE_RATE * disc) + Math.floor(ep * shares * TAX_RATE);
+                const netSellProceeds = (ep * shares) - Math.floor(ep * shares * BASE_FEE_RATE * disc) - Math.floor(ep * shares * TAX_RATE);
+                bePrice = roundToTick(netSellProceeds / (shares * (1 + BASE_FEE_RATE * disc)));
                 if (calcProfit(bePrice, ep, shares, disc) < 0) bePrice = roundToTick(bePrice - getTickSize(bePrice));
             }
 

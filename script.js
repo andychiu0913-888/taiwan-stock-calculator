@@ -73,7 +73,7 @@ function updateTradeTypeUI() {
         balanceLabel.textContent = '買入成本 (含手續費)';
     } else {
         priceLabel.textContent = '賣出成交價 (TWD)';
-        balanceLabel.textContent = '賣出收入 (扣除稅費)';
+        balanceLabel.textContent = '賣出成本 (含手續費)';
     }
 }
 
@@ -136,9 +136,11 @@ function calculate() {
         const sellSubtotal = entryPrice * shares;
         const sellFee = Math.floor(sellSubtotal * BASE_FEE_RATE * discount);
         const tax = Math.floor(sellSubtotal * TAX_RATE);
-        balanceValue = sellSubtotal - sellFee - tax;
-
-        const beRaw = balanceValue / (shares * (1 + BASE_FEE_RATE * discount));
+        // 顯示「賣出成本(含手續費)」= 賣出金額 + 手續費 + 交易稅
+        balanceValue = sellSubtotal + sellFee + tax;
+        // 損益兩平計算仍使用「淨收入」
+        const netSellProceeds = sellSubtotal - sellFee - tax;
+        const beRaw = netSellProceeds / (shares * (1 + BASE_FEE_RATE * discount));
         breakEvenPrice = roundToTick(beRaw);
         if (calcProfit(breakEvenPrice, entryPrice, shares, discount) < 0) {
             breakEvenPrice = roundToTick(breakEvenPrice - getTickSize(breakEvenPrice));
