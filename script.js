@@ -125,26 +125,34 @@ function calculate() {
     if (tradeType === 'LONG') {
         const buySubtotal = entryPrice * shares;
         const buyFee = Math.floor(buySubtotal * BASE_FEE_RATE * discount);
-        const tax = Math.floor(buySubtotal * TAX_RATE);
-        balanceValue = buySubtotal + buyFee + tax;
+        const taxAtEntry = Math.floor(buySubtotal * TAX_RATE); // For display symmetry ONLY
+        balanceValue = buySubtotal + buyFee + taxAtEntry;
         
-        const beRaw = (buySubtotal + buyFee) / (shares * (1 - BASE_FEE_RATE * discount - TAX_RATE));
-        breakEvenPrice = roundToTick(beRaw);
+        // Correct BE: Solve S * (1 - f - t) = B * (1 + f)
+        const buyCost = buySubtotal + buyFee;
+        const beRaw = buyCost / (shares * (1 - BASE_FEE_RATE * discount - TAX_RATE));
+        const tick = getTickSize(entryPrice);
+        breakEvenPrice = Math.ceil(beRaw / tick) * tick;
+        
+        // Final safety check: ensure the resulting price actually gives >= 0 profit
         if (calcProfit(entryPrice, breakEvenPrice, shares, discount) < 0) {
-            breakEvenPrice = roundToTick(breakEvenPrice + getTickSize(breakEvenPrice));
+            breakEvenPrice = breakEvenPrice + tick;
         }
     } else {
         const sellSubtotal = entryPrice * shares;
         const sellFee = Math.floor(sellSubtotal * BASE_FEE_RATE * discount);
         const tax = Math.floor(sellSubtotal * TAX_RATE);
-        // 賣出成本 = 賣出金額 + 手續費 + 交易稅（與買入成本對稱）
-        balanceValue = sellSubtotal + sellFee + tax;
-        // 損益兩平計算使用淨收入（含交易稅扣除）
+        balanceValue = sellSubtotal + sellFee + tax; // Perfectly symmetric display
+        
+        // Correct BE: Solve B * (1 + f) = S * (1 - f - t)
         const netSellProceeds = sellSubtotal - sellFee - tax;
         const beRaw = netSellProceeds / (shares * (1 + BASE_FEE_RATE * discount));
-        breakEvenPrice = roundToTick(beRaw);
+        const tick = getTickSize(entryPrice);
+        breakEvenPrice = Math.floor(beRaw / tick) * tick;
+        
+        // Final safety check: ensure the resulting price actually gives >= 0 profit
         if (calcProfit(breakEvenPrice, entryPrice, shares, discount) < 0) {
-            breakEvenPrice = roundToTick(breakEvenPrice - getTickSize(breakEvenPrice));
+            breakEvenPrice = breakEvenPrice - tick;
         }
     }
 

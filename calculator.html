@@ -258,16 +258,27 @@
             let balance = 0;
             let bePrice = 0;
             if (tradeType === 'LONG') {
-                const tax = Math.floor(ep * shares * TAX_RATE);
-                balance = (ep * shares) + Math.floor(ep * shares * BASE_FEE_RATE * disc) + tax;
-                const buyCost = (ep * shares) + Math.floor(ep * shares * BASE_FEE_RATE * disc);
-                bePrice = roundToTick(buyCost / (shares * (1 - BASE_FEE_RATE * disc - TAX_RATE)));
-                if (calcProfit(ep, bePrice, shares, disc) < 0) bePrice = roundToTick(bePrice + getTickSize(bePrice));
+                const buySubtotal = ep * shares;
+                const buyFee = Math.floor(buySubtotal * BASE_FEE_RATE * disc);
+                const taxAtEntry = Math.floor(buySubtotal * TAX_RATE); // Symmetry
+                balance = buySubtotal + buyFee + taxAtEntry;
+                
+                const buyCost = buySubtotal + buyFee;
+                const beRaw = buyCost / (shares * (1 - BASE_FEE_RATE * disc - TAX_RATE));
+                const tick = getTickSize(ep);
+                bePrice = Math.ceil(beRaw / tick) * tick;
+                if (calcProfit(ep, bePrice, shares, disc) < 0) bePrice = bePrice + tick;
             } else {
-                balance = (ep * shares) + Math.floor(ep * shares * BASE_FEE_RATE * disc);
-                const netSellProceeds = (ep * shares) - Math.floor(ep * shares * BASE_FEE_RATE * disc) - Math.floor(ep * shares * TAX_RATE);
-                bePrice = roundToTick(netSellProceeds / (shares * (1 + BASE_FEE_RATE * disc)));
-                if (calcProfit(bePrice, ep, shares, disc) < 0) bePrice = roundToTick(bePrice - getTickSize(bePrice));
+                const sellSubtotal = ep * shares;
+                const sellFee = Math.floor(sellSubtotal * BASE_FEE_RATE * disc);
+                const tax = Math.floor(sellSubtotal * TAX_RATE);
+                balance = sellSubtotal + sellFee + tax; // Symmetry
+                
+                const netSellProceeds = sellSubtotal - sellFee - tax;
+                const beRaw = netSellProceeds / (shares * (1 + BASE_FEE_RATE * disc));
+                const tick = getTickSize(ep);
+                bePrice = Math.floor(beRaw / tick) * tick;
+                if (calcProfit(bePrice, ep, shares, disc) < 0) bePrice = bePrice - tick;
             }
 
             buyingCostEl.textContent = formatCurrency(balance);
