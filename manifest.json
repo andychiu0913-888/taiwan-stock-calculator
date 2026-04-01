@@ -1,0 +1,16 @@
+{
+  "name": "台股當沖損益計算機",
+  "short_name": "當沖計算",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f1113",
+  "theme_color": "#fcc419",
+  "icons": [
+    {
+      "src": "./icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "orientation": "portrait"
+}
