@@ -184,7 +184,7 @@ function renderTable(entryPrice, shares, discount) {
             sellP = roundToTick(buyP * (1 + ratio / 100));
         } else {
             sellP = entryPrice;
-            buyP = roundToTick(sellP * (1 - ratio / 100));
+            buyP = roundToTick(sellP * (1 + ratio / 100));
         }
 
         const profit = calcProfit(buyP, sellP, shares, discount);

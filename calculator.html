@@ -287,7 +287,7 @@
             ratios.forEach(r => {
                 let bp, sp;
                 if (tradeType === 'LONG') { bp = ep; sp = roundToTick(bp * (1 + r / 100)); }
-                else { sp = ep; bp = roundToTick(sp * (1 - r / 100)); }
+                else { sp = ep; bp = roundToTick(sp * (1 + r / 100)); }
 
                 const prof = calcProfit(bp, sp, shares, disc);
                 const rev = (tradeType === 'LONG' ? sp : bp) * shares;
